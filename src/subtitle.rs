@@ -4,8 +4,7 @@ use jni::sys::jfloat;
 use jni::JNIEnv;
 use once_cell::sync::Lazy;
 use std::sync::{Arc, Mutex};
-use transcribe_rs::engines::parakeet::{ParakeetInferenceParams, TimestampGranularity};
-use transcribe_rs::TranscriptionEngine;
+use transcribe_rs::onnx::parakeet::{ParakeetParams, TimestampGranularity};
 
 use crate::engine;
 
@@ -62,13 +61,14 @@ pub unsafe extern "system" fn Java_dev_notune_transcribe_LiveSubtitleService_ini
 
         while let Ok((samples, start_time)) = rx.recv() {
             if let Some(engine_arc) = engine::get_engine() {
-                let params = ParakeetInferenceParams {
-                    timestamp_granularity: TimestampGranularity::Word,
+                let params = ParakeetParams {
+                    timestamp_granularity: Some(TimestampGranularity::Word),
+                    ..Default::default()
                 };
 
                 let res = {
                     let mut eng = engine_arc.lock().unwrap();
-                    eng.transcribe_samples(samples, Some(params))
+                    eng.transcribe_with(&samples, &params)
                 };
 
                 if let Ok(r) = res {

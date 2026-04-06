@@ -1,7 +1,7 @@
 use once_cell::sync::Lazy;
 use std::sync::{Arc, Condvar, Mutex};
-use transcribe_rs::engines::parakeet::ParakeetEngine;
-use transcribe_rs::TranscriptionEngine;
+use transcribe_rs::onnx::parakeet::ParakeetModel;
+use transcribe_rs::onnx::Quantization;
 
 use jni::objects::{GlobalRef, JObject};
 use jni::JNIEnv;
@@ -9,7 +9,7 @@ use jni::JNIEnv;
 use crate::assets;
 
 /// Holds the loaded engine singleton.
-static GLOBAL_ENGINE: Lazy<Mutex<Option<Arc<Mutex<ParakeetEngine>>>>> =
+static GLOBAL_ENGINE: Lazy<Mutex<Option<Arc<Mutex<ParakeetModel>>>>> =
     Lazy::new(|| Mutex::new(None));
 
 /// Loading coordination state + condvar for waiters.
@@ -28,7 +28,7 @@ enum LoadState {
     Failed(String),
 }
 
-pub fn get_engine() -> Option<Arc<Mutex<ParakeetEngine>>> {
+pub fn get_engine() -> Option<Arc<Mutex<ParakeetModel>>> {
     GLOBAL_ENGINE.lock().unwrap().clone()
 }
 
@@ -201,12 +201,8 @@ fn do_load(env: &mut JNIEnv, context: &JObject) -> Result<(), String> {
 
     notify_status(env, context, "Loading model...");
 
-    let mut eng = ParakeetEngine::new();
-    match eng.load_model_with_params(
-        &path,
-        transcribe_rs::engines::parakeet::ParakeetModelParams::int8(),
-    ) {
-        Ok(_) => {
+    match ParakeetModel::load(&path, &Quantization::Int8) {
+        Ok(eng) => {
             *GLOBAL_ENGINE.lock().unwrap() = Some(Arc::new(Mutex::new(eng)));
             notify_status(env, context, "Ready");
             Ok(())

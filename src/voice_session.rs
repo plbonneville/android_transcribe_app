@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use jni::objects::{GlobalRef, JObject};
 use jni::JNIEnv;
-use transcribe_rs::TranscriptionEngine;
+use transcribe_rs::onnx::parakeet::{ParakeetParams, TimestampGranularity};
 
 use crate::engine;
 
@@ -182,7 +182,11 @@ pub fn stop_recording(mut env: JNIEnv, state: &mut VoiceSessionState) {
         if let Some(eng_arc) = engine::get_engine() {
             let res = {
                 let mut eng = eng_arc.lock().unwrap();
-                eng.transcribe_samples(buffer, None)
+                let params = ParakeetParams {
+                    timestamp_granularity: Some(TimestampGranularity::Segment),
+                    ..Default::default()
+                };
+                eng.transcribe_with(&buffer, &params)
             };
 
             match res {

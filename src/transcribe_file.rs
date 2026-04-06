@@ -5,7 +5,7 @@ use jni::sys::jint;
 use jni::JNIEnv;
 use once_cell::sync::Lazy;
 
-use transcribe_rs::TranscriptionEngine;
+use transcribe_rs::onnx::parakeet::{ParakeetParams, TimestampGranularity};
 
 use crate::engine;
 
@@ -140,7 +140,11 @@ pub unsafe extern "system" fn Java_dev_notune_transcribe_TranscribeFileActivity_
 
             let res = {
                 let mut eng = eng_arc.lock().unwrap();
-                eng.transcribe_samples(buffer, None)
+                let params = ParakeetParams {
+                    timestamp_granularity: Some(TimestampGranularity::Segment),
+                    ..Default::default()
+                };
+                eng.transcribe_with(&buffer, &params)
             };
 
             match res {

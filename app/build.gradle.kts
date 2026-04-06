@@ -81,13 +81,13 @@ if (!isBundle) {
 }
 
 dependencies {
-    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.22.0")
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.24.3")
 }
 
 // Dedicated configuration to resolve the ORT AAR for the Rust build
 val ortNative: Configuration by configurations.creating
 dependencies {
-    ortNative("com.microsoft.onnxruntime:onnxruntime-android:1.22.0")
+    ortNative("com.microsoft.onnxruntime:onnxruntime-android:1.24.3")
 }
 
 // ---------------------------------------------------------------------------
@@ -115,6 +115,15 @@ val cargoNdkBuild by tasks.registering(Exec::class) {
     dependsOn(extractOrt)
 
     workingDir = rootProject.projectDir   // Cargo.toml lives at project root
+
+    // Track Rust sources so Gradle re-runs when they change
+    inputs.dir(rootProject.file("src"))
+    inputs.file(rootProject.file("Cargo.toml"))
+
+    // Always delegate to cargo (which handles its own incremental caching).
+    // This avoids Gradle's content-based up-to-date check disagreeing with
+    // cargo's mtime-based check after undo/redo or external rebuilds.
+    outputs.upToDateWhen { false }
 
     // Detect NDK path from local.properties or env
     val ndkDir = project.findProperty("ndk.dir")?.toString()
