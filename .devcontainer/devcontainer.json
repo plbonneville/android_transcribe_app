@@ -1,0 +1,20 @@
+// For Android + Rust cross-compilation
+{
+  "name": "Android Transcribe Dev",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      }
+    }
+  },
+  "features": {},
+  "mounts": [
+    "source=${localWorkspaceFolder}/local.properties,target=/workspaces/android_transcribe_app/local.properties,type=bind,consistency=cached,readonly=false"
+  ],
+  "postCreateCommand": ".devcontainer/devcontainer-setup.sh",
+  "remoteUser": "vscode"
+}

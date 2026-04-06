@@ -8,6 +8,7 @@ plugins {
 android {
     namespace = "dev.notune.transcribe"
     compileSdk = 35
+    ndkVersion = "28.0.13004108"
 
     defaultConfig {
         applicationId = "dev.notune.transcribe"
