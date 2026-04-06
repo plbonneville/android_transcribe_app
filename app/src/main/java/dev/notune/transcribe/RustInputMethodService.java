@@ -43,6 +43,7 @@ public class RustInputMethodService extends InputMethodService {
     private Handler mainHandler;
     private boolean isRecording = false;
     private boolean pendingSwitchBack = false;
+    private boolean wasAutoStopped = false;
     private String lastStatus = "Initializing...";
     // Key repeat settings
     private static final long REPEAT_INITIAL_DELAY = 400; // ms before repeat starts
@@ -258,7 +259,7 @@ public class RustInputMethodService extends InputMethodService {
         isRecording = recording;
         if (recording) {
             micIcon.setColorFilter(0xFFF44336); // Red
-            statusView.setText("Listening...");
+            statusView.setText("Speak now");
             hintView.setText("Tap to Stop");
         } else {
             micIcon.setColorFilter(0xFF2196F3); // Blue
@@ -289,6 +290,16 @@ public class RustInputMethodService extends InputMethodService {
         mainHandler.post(() -> {
             Log.d(TAG, "Status: " + status);
             lastStatus = status;
+            // Show VAD-related statuses while recording
+            if (isRecording && statusView != null) {
+                switch (status) {
+                    case "Speak now":
+                    case "Listening...":
+                    case "Silence detected":
+                        statusView.setText(status);
+                        break;
+                }
+            }
             updateUiState();
             if (pendingSwitchBack && status.startsWith("Error")) {
                 pendingSwitchBack = false;
@@ -364,13 +375,55 @@ public class RustInputMethodService extends InputMethodService {
             if (statusView != null) statusView.setText("Tap to Record");
             if (pendingSwitchBack) {
                 pendingSwitchBack = false;
+                wasAutoStopped = false;
                 switchToPreviousInputMethod();
+            } else if (wasAutoStopped && isAutoQuitEnabled()) {
+                wasAutoStopped = false;
+                switchToPreviousInputMethod();
+            } else if (wasAutoStopped) {
+                wasAutoStopped = false;
+                // Auto-stop without auto-quit: restart recording automatically
+                if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    if (isPauseAudioEnabled()) {
+                        audioPauser.request(this);
+                        pauseAudioActive = true;
+                    }
+                    startRecording();
+                    updateRecordButtonUI(true);
+                }
+            } else {
+                wasAutoStopped = false;
             }
         });
     }
     public void onAudioLevel(float level) { }
 
+    // Called from Rust when silence auto-stop threshold is reached
+    public void onAutoStop() {
+        mainHandler.post(() -> {
+            if (isRecording && isAutoStopEnabled()) {
+                isRecording = false;
+                wasAutoStopped = true;
+                updateRecordButtonUI(false);
+                stopRecording();
+                if (pauseAudioActive) {
+                    audioPauser.abandon(this);
+                    pauseAudioActive = false;
+                }
+            }
+        });
+    }
+
     private boolean isPauseAudioEnabled() {
         return new File(getFilesDir(), "pause_audio").exists();
+    }
+
+    private boolean isAutoStopEnabled() {
+        return new File(getFilesDir(), "auto_stop_silence").exists();
+    }
+
+    private boolean isAutoQuitEnabled() {
+        return new File(getFilesDir(), "auto_quit_silence").exists();
     }
 }

@@ -100,6 +100,44 @@ fn copy_assets_recursively(
     Ok(())
 }
 
+/// Extract the Silero VAD model from app assets to the app's files directory.
+///
+/// Returns the path to the extracted `silero_vad.onnx` file.
+/// If the file already exists it is returned immediately without re-copying.
+pub fn extract_vad_model(env: &mut JNIEnv, context: &JObject) -> anyhow::Result<PathBuf> {
+    let files_dir_obj = env
+        .call_method(context, "getFilesDir", "()Ljava/io/File;", &[])?
+        .l()?;
+    let path_str_obj = env
+        .call_method(
+            &files_dir_obj,
+            "getAbsolutePath",
+            "()Ljava/lang/String;",
+            &[],
+        )?
+        .l()?;
+    let path_string: String = env.get_string(&path_str_obj.into())?.into();
+    let base_path = PathBuf::from(path_string);
+    let dest = base_path.join("silero_vad.onnx");
+
+    if dest.exists() {
+        return Ok(dest);
+    }
+
+    let asset_manager_obj = env
+        .call_method(
+            context,
+            "getAssets",
+            "()Landroid/content/res/AssetManager;",
+            &[],
+        )?
+        .l()?;
+
+    copy_asset_file(env, &asset_manager_obj, "silero_vad.onnx", &base_path)?;
+    log::info!("Silero VAD model extracted to {:?}", dest);
+    Ok(dest)
+}
+
 fn copy_asset_file(
     env: &mut JNIEnv,
     asset_manager: &JObject,

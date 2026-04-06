@@ -30,4 +30,10 @@
 
     <string name="setting_pause_audio">Pause audio</string>
     <string name="setting_pause_audio_desc">Pause audio while recording</string>
+
+    <string name="setting_auto_stop_silence">Auto-stop on silence</string>
+    <string name="setting_auto_stop_silence_desc">Automatically stop when silence is detected. You may need to manually stop regardless if there\'s too much background noise.</string>
+
+    <string name="setting_auto_quit_silence">Auto-quit after transcription</string>
+    <string name="setting_auto_quit_silence_desc">Close the keyboard after the transcription is committed following an auto-stop. Requires Auto-stop on silence to be enabled.</string>
 </resources>

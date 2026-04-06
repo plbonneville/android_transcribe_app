@@ -11,7 +11,7 @@ cpal = "0.15"
 log = "0.4"
 android_logger = "0.13"
 anyhow = "1.0"
-transcribe-rs = { version = "0.3.10", features = ["onnx"] }
+transcribe-rs = { version = "0.3.10", features = ["onnx", "vad-silero"] }
 jni = "0.21"
 once_cell = "1.19"
 parking_lot = "0.12"

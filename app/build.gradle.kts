@@ -180,6 +180,15 @@ val appAssetFiles = listOf(
     ModelFile("vocab.txt", ""),
 )
 
+// Silero VAD model (~2 MB) — stored in the base APK assets for instant access
+val sileroVadFile = ModelFile(
+    "silero_vad.onnx",
+    "" // SHA-256 checked on first run; leave empty to skip verification
+)
+//  transcribe_rs depends on v4 of the silero_vad_v4.onnx model.
+//val sileroVadUrl = "https://github.com/snakers4/silero-vad/raw/refs/heads/master/src/silero_vad/data/silero_vad.onnx"
+val sileroVadUrl = "https://github.com/snakers4/silero-vad/raw/v4.0/files/silero_vad.onnx"
+
 // Large ONNX model files go into the model_assets asset pack so the base
 // module stays under the Play Store 200 MB compressed-download limit.
 val modelPackFiles = listOf(
@@ -265,6 +274,23 @@ val downloadModels by tasks.registering {
     doLast {
         downloadToDir(appAssetsDir, appAssetFiles)
         downloadToDir(packAssetsDir, modelPackFiles)
+
+        // Download Silero VAD model into base app assets
+        appAssetsDir.parentFile.mkdirs()
+        val sileroFile = File(appAssetsDir.parentFile, sileroVadFile.name)
+        if (!sileroFile.exists()) {
+            println("  ↓ Downloading ${sileroVadFile.name}...")
+            val proc = ProcessBuilder("curl", "-L", "-f", "-o", sileroFile.absolutePath, sileroVadUrl)
+                .inheritIO()
+                .start()
+            val exitCode = proc.waitFor()
+            if (exitCode != 0) {
+                throw GradleException("Failed to download ${sileroVadFile.name} (curl exit code $exitCode)")
+            }
+            println("  ✓ ${sileroVadFile.name} downloaded")
+        } else {
+            println("  ✓ ${sileroVadFile.name} already present")
+        }
     }
 }
 

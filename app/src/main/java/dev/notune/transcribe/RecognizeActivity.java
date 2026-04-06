@@ -76,7 +76,7 @@ public class RecognizeActivity extends Activity {
 
         initNative(this);
         isRecording = true;
-        status.setText("Listening... (Tap to stop)");
+        status.setText("Speak now (Tap to stop)");
         if (isPauseAudioEnabled()) {
             audioPauser.request(this);
             pauseAudioActive = true;
@@ -97,12 +97,15 @@ public class RecognizeActivity extends Activity {
     // Called from Rust
     public void onStatusUpdate(String s) {
         final String shown;
-        if ("Ready".equals(s)) {
-            shown = "Ready (Tap to stop)";
-        } else if ("Listening...".equals(s)) {
-            shown = "Listening... (Tap to stop)";
-        } else {
-            shown = s;
+        switch (s) {
+            case "Ready":
+            case "Listening...":
+            case "Speak now":
+            case "Silence detected":
+                shown = s + " (Tap to stop)";
+                break;
+            default:
+                shown = s;
         }
 
         runOnUiThread(() -> status.setText(shown));
@@ -111,6 +114,21 @@ public class RecognizeActivity extends Activity {
     // Called from Rust with 0..1
     public void onAudioLevel(float level) {
         runOnUiThread(() -> micLevel.setLevel(level));
+    }
+
+    // Called from Rust when silence auto-stop threshold is reached
+    public void onAutoStop() {
+        runOnUiThread(() -> {
+            if (isRecording) {
+                isRecording = false;
+                status.setText("Processing...");
+                stopRecording();
+                if (pauseAudioActive) {
+                    audioPauser.abandon(this);
+                    pauseAudioActive = false;
+                }
+            }
+        });
     }
 
     // Called from Rust – keep same method name as IME for code reuse

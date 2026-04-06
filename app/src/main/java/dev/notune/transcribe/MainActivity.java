@@ -103,6 +103,50 @@ public class MainActivity extends Activity {
             }
         });
 
+        Switch autoStopSilenceSwitch = findViewById(R.id.switch_auto_stop_silence);
+        File autoStopSilenceFile = new File(getFilesDir(), "auto_stop_silence");
+        autoStopSilenceSwitch.setChecked(autoStopSilenceFile.exists());
+
+        Switch autoQuitSilenceSwitch = findViewById(R.id.switch_auto_quit_silence);
+        File autoQuitSilenceFile = new File(getFilesDir(), "auto_quit_silence");
+        autoQuitSilenceSwitch.setChecked(autoQuitSilenceFile.exists());
+
+        autoStopSilenceSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                try {
+                    autoStopSilenceFile.createNewFile();
+                } catch (IOException e) {
+                    Log.e(TAG, "Failed to create auto_stop_silence file", e);
+                }
+            } else {
+                autoStopSilenceFile.delete();
+                // Auto-quit depends on auto-stop — disable it too
+                autoQuitSilenceFile.delete();
+                autoQuitSilenceSwitch.setChecked(false);
+            }
+        });
+
+        autoQuitSilenceSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Auto-quit requires auto-stop — enable it automatically if not already on
+                if (!autoStopSilenceFile.exists()) {
+                    try {
+                        autoStopSilenceFile.createNewFile();
+                    } catch (IOException e) {
+                        Log.e(TAG, "Failed to create auto_stop_silence file", e);
+                    }
+                    autoStopSilenceSwitch.setChecked(true);
+                }
+                try {
+                    autoQuitSilenceFile.createNewFile();
+                } catch (IOException e) {
+                    Log.e(TAG, "Failed to create auto_quit_silence file", e);
+                }
+            } else {
+                autoQuitSilenceFile.delete();
+            }
+        });
+
         // Initial check
         updatePermissionUI();
         
