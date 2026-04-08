@@ -52,7 +52,6 @@ jobs:
           ~/.cargo/registry
           ~/.cargo/git
           target
-          transcribe-rs/target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
           ${{ runner.os }}-cargo-
