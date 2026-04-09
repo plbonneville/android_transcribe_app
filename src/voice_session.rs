@@ -155,7 +155,7 @@ pub fn start_recording(mut env: JNIEnv, state: &mut VoiceSessionState) {
                 Ok(silero) => {
                     let smoothed = SmoothedVad::new(
                         Box::new(silero),
-                        /*prefill_frames=*/ 10,
+                        /*prefill_frames=*/ 15,
                         /*hangover_frames=*/ 15,
                         /*onset_frames=*/ 2,
                     );
