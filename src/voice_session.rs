@@ -4,15 +4,14 @@ use std::sync::{Arc, Mutex};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use jni::objects::{GlobalRef, JObject};
 use jni::JNIEnv;
-use transcribe_rs::onnx::parakeet::{ParakeetParams, TimestampGranularity};
+use transcribe_rs::onnx::parakeet::ParakeetParams;
 use transcribe_rs::vad::{SileroVad, SmoothedVad, Vad};
 
 use crate::{assets, engine};
 
 /// Number of consecutive silent 30 ms frames that trigger auto-stop.
-/// 100 frames × 30 ms = 3 seconds.
-// const SILENCE_THRESHOLD_FRAMES: usize = 100;
-const SILENCE_THRESHOLD_FRAMES: usize = 66; // 1,980 ms, tuned for better responsiveness without cutting off trailing speech.
+/// 33 frames × 30 ms = ~990 ms.
+const SILENCE_THRESHOLD_FRAMES: usize = 33;
 
 /// Per-frame VAD bookkeeping shared between `start_recording` and the stream callback.
 struct VadCallbackState {
@@ -156,7 +155,7 @@ pub fn start_recording(mut env: JNIEnv, state: &mut VoiceSessionState) {
                 Ok(silero) => {
                     let smoothed = SmoothedVad::new(
                         Box::new(silero),
-                        /*prefill_frames=*/ 15,
+                        /*prefill_frames=*/ 10,
                         /*hangover_frames=*/ 15,
                         /*onset_frames=*/ 2,
                     );
@@ -315,10 +314,7 @@ pub fn stop_recording(mut env: JNIEnv, state: &mut VoiceSessionState) {
         if let Some(eng_arc) = engine::get_engine() {
             let res = {
                 let mut eng = eng_arc.lock().unwrap();
-                let params = ParakeetParams {
-                    timestamp_granularity: Some(TimestampGranularity::Segment),
-                    ..Default::default()
-                };
+                let params = ParakeetParams::default();
                 eng.transcribe_with(&buffer, &params)
             };
 
