@@ -131,6 +131,14 @@ public class RecognizeActivity extends Activity {
         return new java.io.File(getFilesDir(), "pause_audio").exists();
     }
 
+    private void applyTheme() {
+        if (new java.io.File(getFilesDir(), "theme_black").exists()) {
+            setTheme(R.style.AppTheme_Black);
+        } else if (new java.io.File(getFilesDir(), "theme_dark").exists()) {
+            setTheme(R.style.AppTheme_Dark);
+        }
+    }
+
     // Native methods
     private native void initNative(RecognizeActivity activity);
     private native void cleanupNative();

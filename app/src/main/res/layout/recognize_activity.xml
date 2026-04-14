@@ -3,7 +3,7 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1F2937"
+    android:background="?android:attr/windowBackground"
     android:padding="24dp">
 
     <!-- Close (discard) -->
@@ -15,7 +15,7 @@
         android:background="@android:color/transparent"
         android:contentDescription="Close"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
-        android:tint="#FFFFFF" />
+        android:tint="?android:attr/textColorPrimary" />
 
     <!-- Center mic + ring -->
     <FrameLayout
@@ -35,7 +35,7 @@
             android:layout_height="72dp"
             android:layout_gravity="center"
             android:src="@android:drawable/ic_btn_speak_now"
-            android:tint="#FFFFFF" />
+            android:tint="?android:attr/textColorPrimary" />
 
         <TextView
             android:id="@+id/txt_status"
@@ -44,7 +44,7 @@
             android:layout_gravity="center_horizontal|bottom"
             android:layout_marginBottom="18dp"
             android:text="Listening... (Tap to stop)"
-            android:textColor="#FFFFFF"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="18sp" />
     </FrameLayout>
 

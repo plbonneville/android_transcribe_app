@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Light mode -->
     <color name="colorPrimary">#2196F3</color>
     <color name="colorPrimaryDark">#1976D2</color>
     <color name="colorAccent">#FF4081</color>
@@ -9,4 +11,19 @@
     <color name="white">#FFFFFF</color>
     <color name="record_red">#F44336</color>
     <color name="overlay_bg">#99000000</color>
+
+    <!-- Dark mode -->
+    <color name="dark_background">#1A1A1A</color>
+    <color name="dark_surface">#2C2C2C</color>
+    <color name="dark_key">#3C3C3C</color>
+    <color name="dark_textPrimary">#EEEEEE</color>
+    <color name="dark_textSecondary">#AAAAAA</color>
+
+    <!-- Black (AMOLED) mode -->
+    <color name="black_background">#000000</color>
+    <color name="black_surface">#101010</color>
+    <color name="black_key">#222222</color>
+    <color name="black_textPrimary">#F0F0F0</color>
+    <color name="black_textSecondary">#999999</color>
+
 </resources>

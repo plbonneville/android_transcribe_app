@@ -1,5 +1,7 @@
 package dev.notune.transcribe;
 
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,6 +12,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -30,6 +33,9 @@ public class MainActivity extends Activity {
         System.loadLibrary("android_transcribe_app");
     }
 
+    private static final String THEME_FILE_DARK = "theme_dark";
+    private static final String THEME_FILE_BLACK = "theme_black";
+
     private TextView statusText;
     private Button grantButton;
     private View permsCard;
@@ -38,7 +44,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        applyTheme();
         setContentView(R.layout.activity_main);
+        applyCardThemes();
 
         statusText = findViewById(R.id.text_status);
         permsCard = findViewById(R.id.card_permissions);
@@ -106,6 +114,32 @@ public class MainActivity extends Activity {
         // Initial check
         updatePermissionUI();
         
+        // Theme selector
+        RadioGroup rgTheme = findViewById(R.id.rg_theme);
+        File darkFile = new File(getFilesDir(), THEME_FILE_DARK);
+        File blackFile = new File(getFilesDir(), THEME_FILE_BLACK);
+        if (blackFile.exists()) {
+            rgTheme.check(R.id.rb_theme_black);
+        } else if (darkFile.exists()) {
+            rgTheme.check(R.id.rb_theme_dark);
+        } else {
+            rgTheme.check(R.id.rb_theme_light);
+        }
+        rgTheme.setOnCheckedChangeListener((group, checkedId) -> {
+            darkFile.delete();
+            blackFile.delete();
+            try {
+                if (checkedId == R.id.rb_theme_dark) {
+                    darkFile.createNewFile();
+                } else if (checkedId == R.id.rb_theme_black) {
+                    blackFile.createNewFile();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to save theme", e);
+            }
+            recreate();
+        });
+
         // Start init
         initNative(this);
     }
@@ -135,6 +169,31 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PERM_REQ_CODE) {
             updatePermissionUI();
+        }
+    }
+
+    private void applyTheme() {
+        File darkFile = new File(getFilesDir(), THEME_FILE_DARK);
+        File blackFile = new File(getFilesDir(), THEME_FILE_BLACK);
+        if (blackFile.exists()) {
+            setTheme(R.style.AppTheme_Black);
+        } else if (darkFile.exists()) {
+            setTheme(R.style.AppTheme_Dark);
+        }
+        // else: default light theme already set via AndroidManifest
+    }
+
+    private void applyCardThemes() {
+        TypedArray ta = getTheme().obtainStyledAttributes(new int[]{R.attr.cardBg});
+        int cardColor = ta.getColor(0, 0xFFFFFFFF);
+        ta.recycle();
+        int[] cardIds = {R.id.card_permissions, R.id.card_ime, R.id.card_settings, R.id.card_subs};
+        for (int id : cardIds) {
+            View card = findViewById(id);
+            if (card != null) {
+                Drawable bg = card.getBackground();
+                if (bg != null) bg.setTint(cardColor);
+            }
         }
     }
 

@@ -1,6 +1,8 @@
 package dev.notune.transcribe;
 
 import android.inputmethodservice.InputMethodService;
+import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
@@ -68,7 +70,8 @@ public class RustInputMethodService extends InputMethodService {
     public View onCreateInputView() {
         Log.d(TAG, "onCreateInputView");
         try {
-            View view = getLayoutInflater().inflate(R.layout.ime_layout, null);
+            ContextThemeWrapper themedCtx = new ContextThemeWrapper(this, resolveThemeId());
+            View view = LayoutInflater.from(themedCtx).inflate(R.layout.ime_layout, null);
             
             // Handle window insets for avoiding navigation bar overlap
             view.setOnApplyWindowInsetsListener((v, insets) -> {
@@ -283,6 +286,12 @@ public class RustInputMethodService extends InputMethodService {
     private native void startRecording();
     private native void stopRecording();
     private native void cancelRecording();
+
+    private int resolveThemeId() {
+        if (new File(getFilesDir(), "theme_black").exists()) return R.style.AppTheme_Black;
+        if (new File(getFilesDir(), "theme_dark").exists()) return R.style.AppTheme_Dark;
+        return R.style.AppTheme;
+    }
 
     // Called from Rust
     public void onStatusUpdate(String status) {

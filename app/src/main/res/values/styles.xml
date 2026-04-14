@@ -5,6 +5,32 @@
         <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="android:colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/background</item>
+        <item name="android:textColorPrimary">@color/textPrimary</item>
+        <item name="android:textColorSecondary">@color/textSecondary</item>
+        <item name="cardBg">@color/white</item>
+        <item name="keyBg">#DDDDDD</item>
+    </style>
+
+    <style name="AppTheme.Dark" parent="android:Theme.Material.NoActionBar">
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/dark_background</item>
+        <item name="android:textColorPrimary">@color/dark_textPrimary</item>
+        <item name="android:textColorSecondary">@color/dark_textSecondary</item>
+        <item name="cardBg">@color/dark_surface</item>
+        <item name="keyBg">@color/dark_key</item>
+    </style>
+
+    <style name="AppTheme.Black" parent="android:Theme.Material.NoActionBar">
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/black_background</item>
+        <item name="android:textColorPrimary">@color/black_textPrimary</item>
+        <item name="android:textColorSecondary">@color/black_textSecondary</item>
+        <item name="cardBg">@color/black_surface</item>
+        <item name="keyBg">@color/black_key</item>
     </style>
 
     <style name="CardStyle">
