@@ -300,7 +300,10 @@ pub fn stop_recording(mut env: JNIEnv, state: &mut VoiceSessionState) {
     std::thread::spawn(move || {
         let mut env = match jvm.attach_current_thread() {
             Ok(e) => e,
-            Err(_) => return,
+            Err(e) => {
+                log::error!("Failed to attach JNI thread for transcription: {}", e);
+                return;
+            }
         };
         let obj = target_ref.as_obj();
 
