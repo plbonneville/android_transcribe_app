@@ -1,11 +1,11 @@
 use jni::objects::{JClass, JObject};
 use jni::JNIEnv;
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::sync::Mutex;
 
 use crate::voice_session::{self, VoiceSessionState};
 
-static IME_STATE: Lazy<Mutex<Option<VoiceSessionState>>> = Lazy::new(|| Mutex::new(None));
+static IME_STATE: LazyLock<Mutex<Option<VoiceSessionState>>> = LazyLock::new(|| Mutex::new(None));
 
 #[no_mangle]
 pub unsafe extern "system" fn Java_dev_notune_transcribe_RustInputMethodService_initNative(

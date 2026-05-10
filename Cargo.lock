@@ -61,7 +61,6 @@ dependencies = [
  "crossbeam-channel",
  "jni",
  "log",
- "once_cell",
  "ort",
  "parking_lot",
  "transcribe-rs",

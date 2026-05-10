@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use jni::objects::{JClass, JFloatArray, JObject};
 use jni::sys::jint;
 use jni::JNIEnv;
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 
 use transcribe_rs::onnx::parakeet::{ParakeetParams, TimestampGranularity};
 
@@ -14,7 +14,7 @@ struct TranscribeFileState {
     target_ref: jni::objects::GlobalRef,
 }
 
-static STATE: Lazy<Mutex<Option<TranscribeFileState>>> = Lazy::new(|| Mutex::new(None));
+static STATE: LazyLock<Mutex<Option<TranscribeFileState>>> = LazyLock::new(|| Mutex::new(None));
 
 fn notify_status(env: &mut JNIEnv, obj: &JObject, msg: &str) {
     if let Ok(jmsg) = env.new_string(msg) {

@@ -1,5 +1,4 @@
-use once_cell::sync::Lazy;
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::{Arc, Condvar, LazyLock, Mutex};
 use transcribe_rs::onnx::parakeet::ParakeetModel;
 use transcribe_rs::onnx::Quantization;
 
@@ -9,12 +8,12 @@ use jni::JNIEnv;
 use crate::assets;
 
 /// Holds the loaded engine singleton.
-static GLOBAL_ENGINE: Lazy<Mutex<Option<Arc<Mutex<ParakeetModel>>>>> =
-    Lazy::new(|| Mutex::new(None));
+static GLOBAL_ENGINE: LazyLock<Mutex<Option<Arc<Mutex<ParakeetModel>>>>> =
+    LazyLock::new(|| Mutex::new(None));
 
 /// Loading coordination state + condvar for waiters.
-static LOAD_STATE: Lazy<(Mutex<LoadState>, Condvar)> =
-    Lazy::new(|| (Mutex::new(LoadState::Idle), Condvar::new()));
+static LOAD_STATE: LazyLock<(Mutex<LoadState>, Condvar)> =
+    LazyLock::new(|| (Mutex::new(LoadState::Idle), Condvar::new()));
 
 #[derive(Debug, Clone, PartialEq)]
 enum LoadState {

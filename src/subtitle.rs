@@ -2,7 +2,7 @@ use crossbeam_channel;
 use jni::objects::{JClass, JObject};
 use jni::sys::jfloat;
 use jni::JNIEnv;
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::sync::{Arc, Mutex};
 use transcribe_rs::onnx::parakeet::{ParakeetParams, TimestampGranularity};
 
@@ -16,7 +16,7 @@ struct LiveSubtitleState {
     update_interval: usize,
 }
 
-static LIVE_STATE: Lazy<Mutex<Option<LiveSubtitleState>>> = Lazy::new(|| Mutex::new(None));
+static LIVE_STATE: LazyLock<Mutex<Option<LiveSubtitleState>>> = LazyLock::new(|| Mutex::new(None));
 
 #[no_mangle]
 pub unsafe extern "system" fn Java_dev_notune_transcribe_LiveSubtitleService_initNative(

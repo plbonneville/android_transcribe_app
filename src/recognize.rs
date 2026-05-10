@@ -2,11 +2,11 @@ use std::sync::Mutex;
 
 use jni::objects::{JClass, JObject};
 use jni::JNIEnv;
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 
 use crate::voice_session::{self, VoiceSessionState};
 
-static RECOG_STATE: Lazy<Mutex<Option<VoiceSessionState>>> = Lazy::new(|| Mutex::new(None));
+static RECOG_STATE: LazyLock<Mutex<Option<VoiceSessionState>>> = LazyLock::new(|| Mutex::new(None));
 
 #[no_mangle]
 pub unsafe extern "system" fn Java_dev_notune_transcribe_RecognizeActivity_initNative(
